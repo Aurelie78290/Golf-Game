@@ -1,6 +1,7 @@
 # ⛳ Mini Golf 3D — React + Vite + Three.js
 
 Jeu de mini-golf 3D en multijoueur local (tour par tour, même écran), construit avec :
+
 - **React + Vite** pour l'app
 - **@react-three/fiber** + **three.js** pour le rendu 3D
 - **@react-three/cannon** pour la physique de la balle (gravité, frottement, rebond)
@@ -60,11 +61,10 @@ Ouvrir `src/game/holes.js` et ajouter un objet dans le tableau `HOLES` :
 
 ## Backend (Express + MySQL) — optionnel
 
-Le jeu fonctionne entièrement côté client pour l'instant. Si tu veux persister
-les scores (historique de parties, classements, comptes joueurs), on peut ajouter :
+Le jeu fonctionne entièrement côté client pour l'instant.
+
+A suivre : persister les scores (historique de parties, classements, comptes joueurs), avec :
 
 - Un dossier `server/` avec une API Express (`POST /games`, `GET /leaderboard`, etc.)
 - Une base MySQL avec des tables `players`, `games`, `game_scores`
 - Un appel `fetch` depuis `GameOver` (dans `EndScreens.jsx`) pour enregistrer la partie terminée
-
-Dis-moi quand tu veux ça et je le scaffold proprement par-dessus le projet actuel.
