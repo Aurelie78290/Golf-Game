@@ -1,9 +1,10 @@
 import { create } from 'zustand'
 import { HOLES } from '../game/holes'
+import type { Phase, Player, Vec3 } from '../types'
 
 const PLAYER_COLORS = ['#ff4d4d', '#4d94ff', '#4dff88', '#ffd24d', '#c34dff', '#ff8c4d']
 
-function freshPlayers(names) {
+function freshPlayers(names: string[]): Player[] {
   const tee = HOLES[0].tee
   return names.map((name, i) => ({
     id: i,
@@ -16,13 +17,26 @@ function freshPlayers(names) {
   }))
 }
 
-export const useGameStore = create((set, get) => ({
-  phase: 'setup', // 'setup' | 'playing' | 'holeSummary' | 'gameOver'
+interface GameState {
+  phase: Phase
+  players: Player[]
+  currentHoleIndex: number
+  currentPlayerIndex: number
+  canShoot: boolean
+
+  startGame: (names: string[]) => void
+  registerShot: () => void
+  resolveShot: (restingPosition: Vec3, isHoled: boolean) => void
+  nextHole: () => void
+  restart: () => void
+}
+
+export const useGameStore = create<GameState>()((set, get) => ({
+  phase: 'setup',
   players: [],
   currentHoleIndex: 0,
   currentPlayerIndex: 0,
   canShoot: true,
-  lastImpulse: null,
 
   startGame: (names) => {
     set({
@@ -49,7 +63,7 @@ export const useGameStore = create((set, get) => ({
         strokesThisHole: strokes,
         totalStrokes: isHoled ? p.totalStrokes + strokes : p.totalStrokes,
         holed: isHoled,
-        position: isHoled ? [...hole.hole] : restingPosition,
+        position: isHoled ? [...hole.hole] as Vec3 : restingPosition,
       }
     })
 
@@ -85,7 +99,7 @@ export const useGameStore = create((set, get) => ({
       ...p,
       strokesThisHole: 0,
       holed: false,
-      position: [...tee],
+      position: [...tee] as Vec3,
     }))
     // find first player index (order preserved, all start un-holed)
     set({

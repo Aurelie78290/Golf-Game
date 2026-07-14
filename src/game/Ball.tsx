@@ -1,19 +1,38 @@
 import { useRef, useEffect, forwardRef, useImperativeHandle } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { useSphere } from '@react-three/cannon'
+import type { Vec3 } from '../types'
 
 const BALL_RADIUS = 0.2
 const REST_SPEED_THRESHOLD = 0.06
 const HOLE_CAPTURE_RADIUS = 0.32
+// The physics worker needs a few frames to report the post-impulse velocity;
+// skip the rest-check until then or a fresh shot reads as "already at rest".
+const REST_CHECK_GRACE_FRAMES = 10
 
-const Ball = forwardRef(function Ball(
+export interface BallHandle {
+  applyImpulse: (impulse: Vec3) => void
+  getPosition: () => Vec3
+}
+
+interface BallProps {
+  position: Vec3
+  color: string
+  holePosition: Vec3
+  onRest?: (position: Vec3) => void
+  onHoled?: () => void
+  onPositionChange?: (position: Vec3) => void
+}
+
+const Ball = forwardRef<BallHandle, BallProps>(function Ball(
   { position, color, holePosition, onRest, onHoled, onPositionChange },
   ref
 ) {
-  const velocityRef = useRef([0, 0, 0])
-  const positionRef = useRef(position)
+  const velocityRef = useRef<Vec3>([0, 0, 0])
+  const positionRef = useRef<Vec3>(position)
   const movingRef = useRef(false)
   const settledRef = useRef(false)
+  const restCheckGraceRef = useRef(0)
 
   const [meshRef, api] = useSphere(() => ({
     mass: 0.15,
@@ -34,12 +53,13 @@ const Ball = forwardRef(function Ball(
       unsubV()
       unsubP()
     }
-  }, [api])
+  }, [api, onPositionChange])
 
   useImperativeHandle(ref, () => ({
     applyImpulse: (impulse) => {
       movingRef.current = true
       settledRef.current = false
+      restCheckGraceRef.current = REST_CHECK_GRACE_FRAMES
       api.applyImpulse(impulse, [0, 0, 0])
     },
     getPosition: () => positionRef.current,
@@ -47,9 +67,13 @@ const Ball = forwardRef(function Ball(
 
   useFrame(() => {
     if (!movingRef.current || settledRef.current) return
+    if (restCheckGraceRef.current > 0) {
+      restCheckGraceRef.current -= 1
+      return
+    }
     const [vx, vy, vz] = velocityRef.current
     const speed = Math.sqrt(vx * vx + vy * vy + vz * vz)
-    const [px, py, pz] = positionRef.current
+    const [px, , pz] = positionRef.current
 
     // Check if ball is captured by the hole
     const dx = px - holePosition[0]

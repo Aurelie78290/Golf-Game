@@ -1,11 +1,17 @@
-import { useRef } from 'react'
+import { useRef, type RefObject } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
+import type { Vec3 } from '../types'
 
 const CAM_HEIGHT = 3.2
 const CAM_DISTANCE = 5.5
 
-export default function CameraRig({ ballPosRef, holePosition }) {
+interface CameraRigProps {
+  ballPosRef: RefObject<Vec3>
+  holePosition: Vec3
+}
+
+export default function CameraRig({ ballPosRef, holePosition }: CameraRigProps) {
   const { camera } = useThree()
   const tmpForward = useRef(new THREE.Vector3())
   const tmpTarget = useRef(new THREE.Vector3())

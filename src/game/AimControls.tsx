@@ -1,26 +1,34 @@
-import { useRef, useState, useCallback } from 'react'
+import { useRef, useState, useCallback, type RefObject, type PointerEvent } from 'react'
+import type { Vec3 } from '../types'
 
 const MAX_DRAG_PX = 160
 const MAX_IMPULSE = 3.2
 const MIN_POWER = 0.06
 
-export default function AimControls({ enabled, ballPosRef, holePosition, onShoot }) {
+interface AimControlsProps {
+  enabled: boolean
+  ballPosRef: RefObject<Vec3>
+  holePosition: Vec3
+  onShoot: (impulse: Vec3) => void
+}
+
+export default function AimControls({ enabled, ballPosRef, holePosition, onShoot }: AimControlsProps) {
   const [aiming, setAiming] = useState(false)
   const [angleDeg, setAngleDeg] = useState(0)
   const [power, setPower] = useState(0)
   const startRef = useRef({ x: 0, y: 0 })
-  const aimDirRef = useRef([0, 0, -1])
+  const aimDirRef = useRef<Vec3>([0, 0, -1])
 
-  const computeForward = useCallback(() => {
+  const computeForward = useCallback((): [number, number] => {
     const [bx, , bz] = ballPosRef.current
     const [hx, , hz] = holePosition
-    let fx = hx - bx
-    let fz = hz - bz
+    const fx = hx - bx
+    const fz = hz - bz
     const len = Math.sqrt(fx * fx + fz * fz) || 1
     return [fx / len, fz / len]
   }, [ballPosRef, holePosition])
 
-  const handlePointerDown = (e) => {
+  const handlePointerDown = (e: PointerEvent<HTMLDivElement>) => {
     if (!enabled) return
     startRef.current = { x: e.clientX, y: e.clientY }
     setAiming(true)
@@ -28,7 +36,7 @@ export default function AimControls({ enabled, ballPosRef, holePosition, onShoot
     setAngleDeg(0)
   }
 
-  const handlePointerMove = (e) => {
+  const handlePointerMove = (e: PointerEvent<HTMLDivElement>) => {
     if (!aiming || !enabled) return
     const dx = e.clientX - startRef.current.x
     const dy = e.clientY - startRef.current.y

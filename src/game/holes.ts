@@ -1,8 +1,9 @@
 // Coordinate system: x = left/right, z = tee -> hole direction, y = up
 // Each hole defines: tee position, hole (cup) position, par, fairway bounds,
 // and a list of static obstacles (boxes) used both as walls and hazards.
+import type { Hole } from '../types'
 
-export const HOLES = [
+export const HOLES: Hole[] = [
   {
     name: 'Trou 1 - La Ligne Droite',
     par: 2,

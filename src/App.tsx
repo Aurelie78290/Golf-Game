@@ -1,17 +1,27 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, type RefObject } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Physics } from '@react-three/cannon'
 import { useGameStore } from './store/gameStore'
 import { HOLES } from './game/holes'
 import Course from './game/Course'
-import Ball from './game/Ball'
+import Ball, { type BallHandle } from './game/Ball'
 import CameraRig from './game/CameraRig'
 import AimControls from './game/AimControls'
 import HUD from './game/HUD'
 import SetupScreen from './game/SetupScreen'
 import { HoleSummary, GameOver } from './game/EndScreens'
+import type { Hole, Player, Vec3 } from './types'
 
-function Scene({ hole, player, ballPosRef, ballApiRef, onRest, onHoled }) {
+interface SceneProps {
+  hole: Hole
+  player: Player
+  ballPosRef: RefObject<Vec3>
+  ballApiRef: RefObject<BallHandle | null>
+  onRest: (position: Vec3) => void
+  onHoled: () => void
+}
+
+function Scene({ hole, player, ballPosRef, ballApiRef, onRest, onHoled }: SceneProps) {
   return (
     <>
       <ambientLight intensity={0.65} />
@@ -54,8 +64,8 @@ export default function App() {
   const hole = HOLES[currentHoleIndex]
   const player = players[currentPlayerIndex]
 
-  const ballApiRef = useRef(null)
-  const ballPosRef = useRef(player ? player.position : hole.tee)
+  const ballApiRef = useRef<BallHandle | null>(null)
+  const ballPosRef = useRef<Vec3>(player ? player.position : hole.tee)
 
   useEffect(() => {
     if (player) ballPosRef.current = player.position
@@ -68,13 +78,13 @@ export default function App() {
 
   if (!player) return null
 
-  const handleShoot = (impulse) => {
+  const handleShoot = (impulse: Vec3) => {
     if (!canShoot) return
     registerShot()
     ballApiRef.current?.applyImpulse(impulse)
   }
 
-  const handleRest = (position) => resolveShot(position, false)
+  const handleRest = (position: Vec3) => resolveShot(position, false)
   const handleHoled = () => resolveShot(ballApiRef.current?.getPosition() ?? player.position, true)
 
   return (

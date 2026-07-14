@@ -1,6 +1,7 @@
 import { usePlane, useBox } from '@react-three/cannon'
+import type { Fairway, Hole, Vec3 } from '../types'
 
-function Wall({ position, size }) {
+function Wall({ position, size }: { position: Vec3; size: Vec3 }) {
   const [ref] = useBox(() => ({
     type: 'Static',
     position,
@@ -14,7 +15,7 @@ function Wall({ position, size }) {
   )
 }
 
-function Obstacle({ position, size, color }) {
+function Obstacle({ position, size, color }: { position: Vec3; size: Vec3; color?: string }) {
   const [ref] = useBox(() => ({
     type: 'Static',
     position,
@@ -28,7 +29,7 @@ function Obstacle({ position, size, color }) {
   )
 }
 
-function Ground({ fairway }) {
+function Ground({ fairway }: { fairway: Fairway }) {
   const [ref] = usePlane(() => ({
     type: 'Static',
     rotation: [-Math.PI / 2, 0, 0],
@@ -43,7 +44,7 @@ function Ground({ fairway }) {
   )
 }
 
-function Cup({ position }) {
+function Cup({ position }: { position: Vec3 }) {
   return (
     <group position={position}>
       <mesh position={[0, 0.001, 0]} rotation={[-Math.PI / 2, 0, 0]}>
@@ -63,7 +64,7 @@ function Cup({ position }) {
   )
 }
 
-export default function Course({ hole }) {
+export default function Course({ hole }: { hole: Hole }) {
   const { fairway, obstacles, hole: holePos } = hole
   const halfW = fairway.width / 2
   const halfL = fairway.length / 2

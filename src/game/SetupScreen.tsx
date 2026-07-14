@@ -1,9 +1,13 @@
-import { useState } from 'react'
+import { useState, type ChangeEvent } from 'react'
 
-export default function SetupScreen({ onStart }) {
+interface SetupScreenProps {
+  onStart: (names: string[]) => void
+}
+
+export default function SetupScreen({ onStart }: SetupScreenProps) {
   const [names, setNames] = useState(['Joueur 1', 'Joueur 2'])
 
-  const updateName = (i, value) => {
+  const updateName = (i: number, value: string) => {
     setNames((prev) => prev.map((n, idx) => (idx === i ? value : n)))
   }
 
@@ -12,7 +16,7 @@ export default function SetupScreen({ onStart }) {
     setNames((prev) => [...prev, `Joueur ${prev.length + 1}`])
   }
 
-  const removePlayer = (i) => {
+  const removePlayer = (i: number) => {
     if (names.length <= 1) return
     setNames((prev) => prev.filter((_, idx) => idx !== i))
   }
@@ -54,7 +58,7 @@ export default function SetupScreen({ onStart }) {
             <div key={i} style={{ display: 'flex', gap: 8 }}>
               <input
                 value={n}
-                onChange={(e) => updateName(i, e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => updateName(i, e.target.value)}
                 style={{
                   flex: 1,
                   padding: '8px 10px',

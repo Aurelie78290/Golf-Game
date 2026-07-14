@@ -1,4 +1,14 @@
-export default function HUD({ hole, holeNumber, totalHoles, players, currentPlayerIndex }) {
+import type { Hole, Player } from '../types'
+
+interface HUDProps {
+  hole: Hole
+  holeNumber: number
+  totalHoles: number
+  players: Player[]
+  currentPlayerIndex: number
+}
+
+export default function HUD({ hole, holeNumber, totalHoles, players, currentPlayerIndex }: HUDProps) {
   return (
     <div
       style={{

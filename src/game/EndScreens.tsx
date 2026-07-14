@@ -1,4 +1,7 @@
-function Panel({ children }) {
+import type { ReactNode } from 'react'
+import type { Hole, Player } from '../types'
+
+function Panel({ children }: { children: ReactNode }) {
   return (
     <div
       style={{
@@ -27,7 +30,15 @@ function Panel({ children }) {
   )
 }
 
-export function HoleSummary({ hole, holeNumber, players, onNext, isLastHole }) {
+interface HoleSummaryProps {
+  hole: Hole
+  holeNumber: number
+  players: Player[]
+  onNext: () => void
+  isLastHole: boolean
+}
+
+export function HoleSummary({ hole, holeNumber, players, onNext, isLastHole }: HoleSummaryProps) {
   const sorted = [...players].sort((a, b) => a.strokesThisHole - b.strokesThisHole)
   return (
     <Panel>
@@ -60,7 +71,12 @@ export function HoleSummary({ hole, holeNumber, players, onNext, isLastHole }) {
   )
 }
 
-export function GameOver({ players, onRestart }) {
+interface GameOverProps {
+  players: Player[]
+  onRestart: () => void
+}
+
+export function GameOver({ players, onRestart }: GameOverProps) {
   const ranking = [...players].sort((a, b) => a.totalStrokes - b.totalStrokes)
   return (
     <Panel>
