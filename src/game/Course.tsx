@@ -1,18 +1,18 @@
-import { usePlane, useBox } from '@react-three/cannon'
-import type { Fairway, Hole, Vec3 } from '../types'
+import { useBox, usePlane } from '@react-three/cannon'
+import type { Hole, Vec3 } from '../types'
+import { Bunkers, RoughField, Terrain, Trees } from './Scenery'
 
-function Wall({ position, size }: { position: Vec3; size: Vec3 }) {
-  const [ref] = useBox(() => ({
+// Flat, invisible, unbounded collider — the ball can roll anywhere; what
+// slows it down outside the fairway is the extra damping applied in Ball.tsx,
+// not a wall.
+function PhysicsFloor() {
+  usePlane(() => ({
     type: 'Static',
-    position,
-    args: size,
+    rotation: [-Math.PI / 2, 0, 0],
+    position: [0, 0, 0],
+    material: { friction: 0.5, restitution: 0.3 },
   }))
-  return (
-    <mesh ref={ref} visible={false}>
-      <boxGeometry args={size} />
-      <meshStandardMaterial color="#553311" />
-    </mesh>
-  )
+  return null
 }
 
 function Obstacle({ position, size, color }: { position: Vec3; size: Vec3; color?: string }) {
@@ -25,21 +25,6 @@ function Obstacle({ position, size, color }: { position: Vec3; size: Vec3; color
     <mesh ref={ref} castShadow receiveShadow>
       <boxGeometry args={size} />
       <meshStandardMaterial color={color || '#8a6d3b'} roughness={0.9} />
-    </mesh>
-  )
-}
-
-function Ground({ fairway }: { fairway: Fairway }) {
-  const [ref] = usePlane(() => ({
-    type: 'Static',
-    rotation: [-Math.PI / 2, 0, 0],
-    position: [fairway.center[0], 0, fairway.center[2]],
-    material: { friction: 0.55, restitution: 0.3 },
-  }))
-  return (
-    <mesh ref={ref} receiveShadow>
-      <planeGeometry args={[fairway.width + 8, fairway.length + 8]} />
-      <meshStandardMaterial color="#2f8f4e" roughness={1} />
     </mesh>
   )
 }
@@ -65,20 +50,15 @@ function Cup({ position }: { position: Vec3 }) {
 }
 
 export default function Course({ hole }: { hole: Hole }) {
-  const { fairway, obstacles, hole: holePos } = hole
-  const halfW = fairway.width / 2
-  const halfL = fairway.length / 2
-  const cz = fairway.center[2]
+  const { obstacles, hole: holePos } = hole
 
   return (
     <group>
-      <Ground fairway={fairway} />
-
-      {/* fairway boundary walls */}
-      <Wall position={[fairway.center[0] - halfW - 0.1, 0.5, cz]} size={[0.2, 1, fairway.length]} />
-      <Wall position={[fairway.center[0] + halfW + 0.1, 0.5, cz]} size={[0.2, 1, fairway.length]} />
-      <Wall position={[fairway.center[0], 0.5, cz - halfL - 0.1]} size={[fairway.width, 1, 0.2]} />
-      <Wall position={[fairway.center[0], 0.5, cz + halfL + 0.1]} size={[fairway.width, 1, 0.2]} />
+      <RoughField />
+      <Trees hole={hole} />
+      <PhysicsFloor />
+      <Terrain hole={hole} />
+      <Bunkers hole={hole} />
 
       {obstacles.map((o, i) => (
         <Obstacle key={i} position={o.position} size={o.size} color={o.color} />
