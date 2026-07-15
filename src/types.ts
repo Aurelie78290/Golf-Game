@@ -12,6 +12,13 @@ export interface Fairway {
   center: Vec3
 }
 
+export interface Hill {
+  center: [number, number]
+  radiusX: number
+  radiusZ: number
+  height: number
+}
+
 export interface Hole {
   name: string
   par: number
@@ -19,6 +26,7 @@ export interface Hole {
   hole: Vec3
   fairway: Fairway
   obstacles: Obstacle[]
+  terrain?: Hill[]
 }
 
 export interface Player {

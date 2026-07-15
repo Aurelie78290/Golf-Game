@@ -4,6 +4,7 @@ import { Physics } from '@react-three/cannon'
 import { useGameStore } from './store/gameStore'
 import { HOLES } from './game/holes'
 import Course from './game/Course'
+import { CourseSky } from './game/Scenery'
 import Ball, { type BallHandle } from './game/Ball'
 import CameraRig from './game/CameraRig'
 import AimControls from './game/AimControls'
@@ -24,13 +25,20 @@ interface SceneProps {
 function Scene({ hole, player, ballPosRef, ballApiRef, onRest, onHoled }: SceneProps) {
   return (
     <>
-      <ambientLight intensity={0.65} />
+      <CourseSky />
+      <hemisphereLight args={['#cfe9ff', '#3a6b3f', 0.55]} />
       <directionalLight
-        position={[8, 12, 6]}
-        intensity={1.1}
+        position={[24, 30, 14]}
+        intensity={1.4}
+        color="#fff4e0"
         castShadow
-        shadow-mapSize-width={1024}
-        shadow-mapSize-height={1024}
+        shadow-mapSize-width={2048}
+        shadow-mapSize-height={2048}
+        shadow-camera-left={-20}
+        shadow-camera-right={20}
+        shadow-camera-top={20}
+        shadow-camera-bottom={-20}
+        shadow-camera-far={80}
       />
       <Physics gravity={[0, -9.82, 0]} defaultContactMaterial={{ friction: 0.5, restitution: 0.35 }}>
         <Course hole={hole} />
@@ -39,6 +47,8 @@ function Scene({ hole, player, ballPosRef, ballApiRef, onRest, onHoled }: SceneP
           position={player.position}
           color={player.color}
           holePosition={hole.hole}
+          fairway={hole.fairway}
+          terrain={hole.terrain}
           onRest={onRest}
           onHoled={onHoled}
           onPositionChange={(p) => (ballPosRef.current = p)}
